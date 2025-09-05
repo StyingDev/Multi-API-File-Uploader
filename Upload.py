@@ -54,7 +54,7 @@ class FileUploaderApp:
         }
 
 
-        self.current_api = tk.StringVar(value="Uguu")
+        self.current_api = tk.StringVar(value="Uguu (64MB)")
         self.uploaded_urls = []
 
         self.create_ui()
@@ -65,7 +65,7 @@ class FileUploaderApp:
 
         ttk.Label(top_frame, text="Select API:").pack(side=tk.LEFT, padx=5)
         
-        self.api_menu = ttk.OptionMenu(top_frame, self.current_api, "Uguu", *self.apis.keys())
+        self.api_menu = ttk.OptionMenu(top_frame, self.current_api, "Uguu (64MB)", *self.apis.keys())
         self.api_menu.pack(side=tk.LEFT, padx=5)
 
         ttk.Button(top_frame, text="Add Files", command=self.add_files).pack(side=tk.LEFT, padx=5)
@@ -151,18 +151,27 @@ class FileUploaderApp:
             files[api_config["file_field"]].close()
 
 
-
+    # I know its a bit messy but it works :D
     def copy_url(self):
         selected_indices = self.url_listbox.curselection()
         if not selected_indices:
             messagebox.showwarning("No URL Selected", "Please select a URL to copy.")
             return
 
-        urls = [self.url_listbox.get(idx) for idx in selected_indices]
+        urls = []
+        for idx in selected_indices:
+            text = self.url_listbox.get(idx)
+            # split on " - " and take the URL part
+            if " - " in text:
+                urls.append(text.split(" - ", 1)[1])
+            else:
+                urls.append(text)
+
         self.master.clipboard_clear()
         self.master.clipboard_append("\n".join(urls))
         self.master.update()
         messagebox.showinfo("Copied", "Selected URL(s) copied to clipboard.")
+
 
     def clear_files(self):
         self.file_listbox.delete(0, tk.END)
